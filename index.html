@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="KPI FAMCOVA">
+<title>KPI Inspección FAMCOVA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F2F2F7;color:#1C1C1E;min-height:100vh}
+.header{background:#1F3864;padding:16px;padding-top:max(16px,env(safe-area-inset-top));position:sticky;top:0;z-index:10}
+.header h1{color:#fff;font-size:17px;font-weight:600;text-align:center}
+.header p{color:rgba(255,255,255,0.7);font-size:12px;text-align:center;margin-top:2px}
+.content{padding:16px;padding-bottom:max(32px,env(safe-area-inset-bottom))}
+.section{margin-bottom:8px}
+.section-title{font-size:12px;font-weight:600;color:#6D6D72;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;padding-left:4px}
+.card{background:#fff;border-radius:12px;overflow:hidden;margin-bottom:8px}
+.field{padding:12px 16px;border-bottom:0.5px solid #E5E5EA;display:flex;align-items:center;justify-content:space-between;min-height:48px}
+.field:last-child{border-bottom:none}
+.field label{font-size:15px;color:#1C1C1E;flex:1}
+.field input[type="date"],.field select,.field input[type="text"]{border:none;outline:none;font-size:15px;color:#1C1C1E;text-align:right;background:transparent;max-width:60%;font-family:inherit}
+.field input[type="date"]{color:#007AFF}
+.field select{color:#007AFF;-webkit-appearance:none;padding-right:0}
+.field textarea{border:none;outline:none;font-size:15px;color:#1C1C1E;background:transparent;width:100%;resize:none;height:72px;margin-top:8px;font-family:inherit;line-height:1.5}
+.field-vertical{flex-direction:column;align-items:flex-start}
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;width:100%}
+.toggle{position:relative;width:51px;height:31px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#E5E5EA;border-radius:31px;transition:0.3s}
+.slider:before{content:"";position:absolute;width:27px;height:27px;left:2px;top:2px;background:white;border-radius:50%;transition:0.3s;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+input:checked+.slider{background:#34C759}
+input:checked+.slider:before{transform:translateX(20px)}
+.btn-submit{width:100%;padding:16px;background:#1F3864;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit;transition:opacity 0.2s}
+.btn-submit:active{opacity:0.8}
+.btn-submit:disabled{opacity:0.5}
+.toast{position:fixed;bottom:max(32px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:12px 24px;border-radius:24px;font-size:14px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:100;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.toast.error{background:#C0392B}
+.score-preview{text-align:center;padding:16px;background:#EBF3FB;border-radius:12px;margin-bottom:8px}
+.score-num{font-size:42px;font-weight:700;color:#1F3864;line-height:1}
+.score-label{font-size:12px;color:#6D6D72;margin-top:4px}
+.score-bar{height:8px;background:#E5E5EA;border-radius:4px;margin-top:10px;overflow:hidden}
+.score-fill{height:8px;border-radius:4px;transition:width 0.4s,background 0.4s}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>KPI Inspección FAMCOVA</h1>
+  <p>Registro de visita de seguimiento</p>
+</div>
+<div class="content">
+  <div class="score-preview">
+    <div class="score-num" id="score-num">0%</div>
+    <div class="score-label">Cumplimiento operativo</div>
+    <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%;background:#E24B4A"></div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Datos de la visita</div>
+    <div class="card">
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" id="f-fecha">
+      </div>
+      <div class="field">
+        <label>Inspector</label>
+        <select id="f-inspector">
+          <option value="">Seleccionar...</option>
+          <option>Jaime Vargas</option>
+          <option>Juan Diego</option>
+          <option>Jairo</option>
+          <option>Robnel</option>
+          <option>Madriz</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ruta</label>
+        <input type="text" id="f-ruta" placeholder="Ej: Ruta 3">
+      </div>
+      <div class="field">
+        <label>Frente</label>
+        <input type="text" id="f-frente" placeholder="Ej: Km 12+890">
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Cumplimiento operativo</div>
+    <div class="card">
+      <div class="field"><div class="toggle-wrap"><label>Bitácora completa</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-bitacora" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Cumple protocolo</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-protocolo" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Reporte ubicación</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-ubicacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Registro fotográfico</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-foto" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Entrega informe diario</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-informe" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Cumple horario</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-horario" onchange="updateScore()"><span class="slider"></span></label></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Incidencias</div>
+    <div class="card">
+      <div class="field"><div class="toggle-wrap"><label>Problema técnico</label><label class="toggle"><input type="checkbox" id="c-problema"><span class="slider"></span></label></div></div>
+      <div class="field">
+        <label>Severidad</label>
+        <select id="f-severidad">
+          <option>Ninguna</option>
+          <option>Baja</option>
+          <option>Media</option>
+          <option>Alta</option>
+        </select>
+      </div>
+      <div class="field"><div class="toggle-wrap"><label>Reincidencia</label><label class="toggle"><input type="checkbox" id="c-reincidencia"><span class="slider"></span></label></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Notas</div>
+    <div class="card">
+      <div class="field field-vertical">
+        <label>Observaciones</label>
+        <textarea id="f-obs" placeholder="Hallazgos del supervisor..."></textarea>
+      </div>
+      <div class="field field-vertical">
+        <label>Acción correctiva</label>
+        <textarea id="f-accion" placeholder="Acción indicada o tomada..."></textarea>
+      </div>
+    </div>
+  </div>
+  <button class="btn-submit" id="btn-guardar" onclick="guardar()">Guardar visita</button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbw3p9-EcAjx5gHfyjCSn-_So-UusZFfz4qpuwyXLvZIc8ImRxojc6tjgfOyUfNA2EriYQ/exec';
+function updateScore(){
+  const checks=document.querySelectorAll('.check-kpi');
+  const score=Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
+  document.getElementById('score-num').textContent=score+'%';
+  const fill=document.getElementById('score-fill');
+  fill.style.width=score+'%';
+  fill.style.background=score>=95?'#34C759':score>=85?'#FF9500':'#FF3B30';
+}
+function toast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(err?' error':'')+' show';
+  setTimeout(()=>t.className='toast',3000);
+}
+function si(checked){return checked?'TRUE':'FALSE';}
+async function guardar(){
+  const fecha=document.getElementById('f-fecha').value;
+  const inspector=document.getElementById('f-inspector').value;
+  if(!fecha){toast('Ingresá la fecha',true);return;}
+  if(!inspector){toast('Seleccioná un inspector',true);return;}
+  const btn=document.getElementById('btn-guardar');
+  btn.disabled=true;btn.textContent='Guardando...';
+  const checks=document.querySelectorAll('.check-kpi');
+  const score=Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
+  const dateObj=new Date(fecha+'T12:00:00');
+  const mes=dateObj.toLocaleString('es-CR',{month:'long',year:'numeric'});
+  const row=[
+    fecha,mes,inspector,
+    document.getElementById('f-ruta').value,
+    document.getElementById('f-frente').value,
+    si(document.getElementById('c-bitacora').checked),
+    si(document.getElementById('c-protocolo').checked),
+    si(document.getElementById('c-ubicacion').checked),
+    si(document.getElementById('c-foto').checked),
+    si(document.getElementById('c-informe').checked),
+    si(document.getElementById('c-horario').checked),
+    si(document.getElementById('c-problema').checked),
+    document.getElementById('f-severidad').value,
+    si(document.getElementById('c-reincidencia').checked),
+    document.getElementById('f-obs').value,
+    document.getElementById('f-accion').value,
+    score
+  ];
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({row}),headers:{'Content-Type':'application/json'}});
+    toast('Visita guardada correctamente');
+    resetForm();
+  }catch(e){toast('Error de conexión',true);}
+  btn.disabled=false;btn.textContent='Guardar visita';
+}
+function resetForm(){
+  document.getElementById('f-inspector').value='';
+  document.getElementById('f-ruta').value='';
+  document.getElementById('f-frente').value='';
+  document.getElementById('f-obs').value='';
+  document.getElementById('f-accion').value='';
+  document.getElementById('f-severidad').value='Ninguna';
+  document.querySelectorAll('input[type="checkbox"]').forEach(c=>c.checked=false);
+  updateScore();
+}
+document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0];
+updateScore();
+</script>
+</body>
+</html>
