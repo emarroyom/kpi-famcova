@@ -122,9 +122,9 @@ const C={fecha:0,mes:1,inspector:2,ruta:3,frente:4,bitacora:5,protocolo:6,ubicac
 let allData=[],filtroActual='Todos',radarInst=null;
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
 function isTrue(v){const s=String(v).toLowerCase().trim();return s==='true'||s==='sí'||s==='si'||s==='1';}
-function badgeCls(v){return v>=95?'bg':v>=85?'ba':'br';}
-function barColor(v){return v>=95?'#34C759':v>=85?'#FF9500':'#FF3B30';}
-function dotColor(v){return v>=95?'#34C759':v>=85?'#FF9500':'#FF3B30';}
+function badgeCls(v){return v>=90?'bg':v>=75?'ba':'br';}
+function barColor(v){return v>=90?'#34C759':v>=75?'#FF9500':'#FF3B30';}
+function dotColor(v){return v>=90?'#34C759':v>=75?'#FF9500':'#FF3B30';}
 function setStatus(msg){document.getElementById('status-txt').textContent=msg;}
 async function loadData(){
   setStatus('Sincronizando...');
