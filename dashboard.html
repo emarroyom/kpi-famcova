@@ -148,12 +148,13 @@ function calcKPI(insp){
   const rows=insp?allData.filter(r=>r[C.inspector]===insp):allData;
   if(!rows.length)return null;
   const n=rows.length;
-  const pct=col=>Math.round(rows.filter(r=>isTrue(r[col])).length/n*100);
+  const pct=col=>Math.round(rows.filter(r=>isTrue(r[C.presente])&&isTrue(r[col])).length/n*100);
+  const presencia=Math.round(rows.filter(r=>isTrue(r[C.presente])).length/n*100);
   const inspector_kpi=Math.round((pct(C.presente)+pct(C.chaleco)+pct(C.equipo_med)+pct(C.identificados)+pct(C.registro_eq)+pct(C.documentos))/6);
   const proced_kpi=Math.round((pct(C.dispositivos)+pct(C.personal)+pct(C.maquinaria)+pct(C.procedimiento)+pct(C.botadero))/5);
   const doc_kpi=Math.round((pct(C.bitacora)+pct(C.foto)+pct(C.informe)+pct(C.ubicacion))/4);
   const reincid=Math.round(rows.filter(r=>isTrue(r[C.reincidencia])).length/n*100);
-  const global=Math.round((inspector_kpi+proced_kpi+doc_kpi)/3);
+  const global=presencia===0?0:Math.round((inspector_kpi+proced_kpi+doc_kpi)/3);
   return{
     inspector_kpi,proced_kpi,doc_kpi,
     presente:pct(C.presente),chaleco:pct(C.chaleco),
