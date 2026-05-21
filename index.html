@@ -195,8 +195,9 @@ function mostrarDescripcion(){
 }
 
 function updateScore(){
+  const presente=document.getElementById('c-presente').checked;
   const checks=document.querySelectorAll('.check-kpi');
-  const score=Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
+  const score=presente?Math.round([...checks].filter(c=>c.checked).length/checks.length*100):0;
   document.getElementById('score-num').textContent=score+'%';
   const fill=document.getElementById('score-fill');
   fill.style.width=score+'%';
