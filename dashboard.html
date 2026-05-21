@@ -20,7 +20,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav{display:flex;background:#fff;border-bottom:0.5px solid #E5E5EA;overflow-x:auto}
 .nav button{padding:10px 14px;font-size:12px;border:none;border-bottom:2px solid transparent;background:transparent;color:#6D6D72;cursor:pointer;white-space:nowrap;font-weight:400;flex-shrink:0;font-family:inherit}
 .nav button.active{color:#1F3864;border-bottom-color:#1F3864;font-weight:600}
-.tab{display:none;padding:14px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.tab{display:none;padding:14px;padding-bottom:max(80px,env(safe-area-inset-bottom))}
 .tab.active{display:block}
 .metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
 .metric-card{background:#fff;border-radius:12px;padding:14px}
@@ -30,16 +30,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
 .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px}
 .card-title{font-size:10px;font-weight:600;color:#6D6D72;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
-.irow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid #E5E5EA}
+.irow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid #E5E5EA;cursor:pointer}
 .irow:last-child{border-bottom:none}
+.irow-nc{cursor:default}
 .av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.av-lg{width:56px;height:56px;font-size:18px}
 .bar-bg{height:6px;background:#E5E5EA;border-radius:3px;flex:1}
 .bar-fill{height:6px;border-radius:3px;transition:width 0.5s}
+.bar-bg-sm{height:5px;background:#E5E5EA;border-radius:3px;flex:1}
+.bar-fill-sm{height:5px;border-radius:3px}
 .badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
 .bg{background:#E8F8EE;color:#1A5C2E}
 .ba{background:#FFF3E0;color:#7A4500}
 .br{background:#FFEBEE;color:#8B1A1A}
-.alert-item{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:0.5px solid #E5E5EA}
+.alert-item{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:0.5px solid #E5E5EA;cursor:pointer}
 .alert-item:last-child{border-bottom:none}
 .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
 .empty{text-align:center;padding:28px;color:#6D6D72;font-size:14px;line-height:1.6}
@@ -48,7 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cg{background:#E8F8EE;color:#1A5C2E}
 .cr{background:#FFEBEE;color:#8B1A1A}
 .ca{background:#FFF3E0;color:#7A4500}
-.tog-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:4px}
+.tog-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .tog{padding:5px 12px;font-size:12px;border:0.5px solid #C7C7CC;border-radius:20px;background:#fff;color:#6D6D72;cursor:pointer;white-space:nowrap;font-family:inherit}
 .tog.on{background:#1F3864;color:#fff;border-color:#1F3864}
 .kpi-tbl{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
@@ -59,17 +63,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .kpi-tbl tr:last-child td{border-bottom:none}
 .fab{position:fixed;bottom:max(24px,env(safe-area-inset-bottom));right:16px;width:52px;height:52px;border-radius:50%;background:#1F3864;color:#fff;border:none;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;z-index:50}
 .rank-num{font-size:16px;font-weight:700;color:#C7C7CC;min-width:24px;text-align:center}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:14px;color:#1F3864;font-weight:600;margin-bottom:14px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.kpi-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #E5E5EA}
+.kpi-row:last-child{border-bottom:none}
+.kpi-row-label{font-size:13px;color:#1C1C1E;min-width:130px}
+.kpi-row-pct{font-size:13px;font-weight:600;min-width:38px;text-align:right}
+.chevron{font-size:16px;color:#C7C7CC;margin-left:auto;flex-shrink:0}
 </style>
 </head>
 <body>
 <div class="header">
-  <h1>Dashboard KPI – FAMCOVA</h1>
+  <h1 id="header-title">Dashboard KPI – FAMCOVA</h1>
   <div class="header-sub">
     <span class="status" id="status-txt">Conectando...</span>
     <button class="btn-refresh" onclick="loadData()">↻ Actualizar</button>
   </div>
 </div>
-<div class="nav">
+<div class="nav" id="main-nav">
   <button class="active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
   <button onclick="showTab('ranking',this)">🏆 Ranking</button>
   <button onclick="showTab('alertas',this)">🔔 Alertas</button>
@@ -77,8 +87,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 <div id="tab-dashboard" class="tab active">
   <div class="metric-grid" id="kpi-cards"><div class="metric-card" style="grid-column:span 2"><div class="metric-label">Cargando...</div><div class="metric-value">—</div></div></div>
-  <div class="card"><div class="card-title">Desempeño por inspector</div><div id="insp-bars"><div class="empty">Cargando...</div></div></div>
-  <div class="card"><div class="card-title">Distribución KPIs globales</div><div style="position:relative;height:220px"><canvas id="radarChart" role="img" aria-label="Radar KPIs globales">Radar.</canvas></div></div>
+  <div class="card"><div class="card-title">Desempeño por inspector — tocá para ver detalle</div><div id="insp-bars"><div class="empty">Cargando...</div></div></div>
+  <div class="card"><div class="card-title">Distribución KPIs globales</div><div style="position:relative;height:220px"><canvas id="radarChart" role="img" aria-label="Radar KPIs">Radar.</canvas></div></div>
 </div>
 <div id="tab-ranking" class="tab">
   <div class="card"><div class="card-title">Ranking por índice global</div><div id="ranking-list"><div class="empty">Cargando...</div></div></div>
@@ -98,6 +108,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="tog" onclick="filtrar('Madriz',this)">Madriz</button>
   </div>
   <div id="historial-list"><div class="empty">Cargando...</div></div>
+</div>
+<div id="tab-inspector" class="tab">
+  <button class="back-btn" onclick="showTab('dashboard',document.querySelector('.nav button'))">← Volver al dashboard</button>
+  <div id="inspector-detail"></div>
 </div>
 <a class="fab" href="index.html" title="Nuevo registro">+</a>
 <script>
@@ -135,24 +149,76 @@ function renderDashboard(){
   const cards=document.getElementById('kpi-cards');
   if(!k){cards.innerHTML='<div class="metric-card" style="grid-column:span 2"><div class="empty">Sin registros aún.<br>Ingresá visitas desde la app.</div></div>';document.getElementById('insp-bars').innerHTML='<div class="empty">Sin datos</div>';return;}
   cards.innerHTML=[{label:'Protocolo global',val:k.pro+'%',v:k.pro},{label:'Bitácoras',val:k.bit+'%',v:k.bit},{label:'Informes',val:k.inf+'%',v:k.inf},{label:'Índice global',val:k.global+'%',sub:k.total+' visitas',v:k.global}].map(i=>`<div class="metric-card"><div class="metric-label"><span class="dot" style="background:${dotColor(i.v)}"></span>${i.label}</div><div class="metric-value">${i.val}</div>${i.sub?`<div class="metric-sub">${i.sub}</div>`:''}</div>`).join('');
-  document.getElementById('insp-bars').innerHTML=INSPECTORES.map((insp,i)=>{const ki=calcKPI(insp);if(!ki)return `<div class="irow"><div class="av" style="background:${COLORS[i]}18;color:${COLORS[i]}">${initials(insp)}</div><span style="flex:1;font-size:13px;font-weight:500">${insp}</span><span style="font-size:12px;color:#6D6D72">Sin datos</span></div>`;return `<div class="irow"><div class="av" style="background:${COLORS[i]}18;color:${COLORS[i]}">${initials(insp)}</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:13px;font-weight:600">${insp}</span><span class="badge ${badgeCls(ki.global)}">${ki.global}%</span></div><div class="bar-bg"><div class="bar-fill" style="width:${ki.global}%;background:${barColor(ki.global)}"></div></div></div></div>`;}).join('');
+  document.getElementById('insp-bars').innerHTML=INSPECTORES.map((insp,i)=>{
+    const ki=calcKPI(insp);
+    if(!ki)return `<div class="irow irow-nc"><div class="av" style="background:${COLORS[i]}18;color:${COLORS[i]}">${initials(insp)}</div><span style="flex:1;font-size:13px;font-weight:500">${insp}</span><span style="font-size:12px;color:#6D6D72">Sin datos</span></div>`;
+    return `<div class="irow" onclick="showInspector('${insp}')"><div class="av" style="background:${COLORS[i]}18;color:${COLORS[i]}">${initials(insp)}</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:13px;font-weight:600">${insp}</span><span class="badge ${badgeCls(ki.global)}">${ki.global}%</span></div><div class="bar-bg"><div class="bar-fill" style="width:${ki.global}%;background:${barColor(ki.global)}"></div></div></div><span class="chevron">›</span></div>`;
+  }).join('');
   const ctx=document.getElementById('radarChart').getContext('2d');
   if(radarInst)radarInst.destroy();
   radarInst=new Chart(ctx,{type:'radar',data:{labels:['Protocolo','Bitácora','Ubicación','Fotos','Informes','Horario'],datasets:[{data:[k.pro,k.bit,k.ubi,k.fot,k.inf,k.hor],backgroundColor:'rgba(31,56,100,0.1)',borderColor:'#1F3864',pointBackgroundColor:'#1F3864',borderWidth:2,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9},color:'#888'},pointLabels:{font:{size:11}},grid:{color:'rgba(0,0,0,0.06)'},angleLines:{color:'rgba(0,0,0,0.06)'}}},plugins:{legend:{display:false}}}});
+}
+function showInspector(insp){
+  const i=INSPECTORES.indexOf(insp);
+  const color=COLORS[i];
+  const k=calcKPI(insp);
+  if(!k)return;
+  const rows=allData.filter(r=>r[C.inspector]===insp);
+  document.getElementById('header-title').textContent=insp;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  const kpiRows=[
+    {label:'Bitácora completa',val:k.bit},
+    {label:'Cumple protocolo',val:k.pro},
+    {label:'Reporte ubicación',val:k.ubi},
+    {label:'Registro fotográfico',val:k.fot},
+    {label:'Entrega informe',val:k.inf},
+    {label:'Cumple horario',val:k.hor},
+  ];
+  const historial=[...rows].reverse().slice(0,5).map(r=>{
+    const chks=[C.bitacora,C.protocolo,C.ubicacion,C.foto,C.informe,C.horario];
+    const score=Math.round(chks.filter(c=>isTrue(r[c])).length/chks.length*100);
+    const fecha=r[C.fecha]?String(r[C.fecha]).split('T')[0]:'—';
+    return `<div class="hist-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div><div style="font-size:12px;font-weight:600">${fecha}</div><div style="font-size:11px;color:#6D6D72">${r[C.ruta]||'Sin ruta'}</div></div><span class="badge ${badgeCls(score)}">${score}%</span></div><div style="display:flex;flex-wrap:wrap;gap:3px">${[['Bitácora',C.bitacora],['Protocolo',C.protocolo],['Fotos',C.foto],['Informe',C.informe]].map(([l,c])=>`<span class="chip ${isTrue(r[c])?'cg':'cr'}">${l}</span>`).join('')}${isTrue(r[C.reincidencia])?'<span class="chip cr">Reincidencia</span>':''}${isTrue(r[C.problema])?`<span class="chip ca">Prob. ${r[C.severidad]||''}</span>`:''}</div>${r[C.obs]?`<div style="font-size:11px;color:#6D6D72;margin-top:6px">${r[C.obs]}</div>`:''}</div>`;
+  }).join('');
+  document.getElementById('inspector-detail').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div class="av av-lg" style="background:${color}18;color:${color}">${initials(insp)}</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">${insp}</div>
+        <div style="font-size:12px;color:#6D6D72;margin-top:2px">${k.total} visitas registradas</div>
+        <span class="badge ${badgeCls(k.global)}" style="margin-top:6px;display:inline-block">Índice global ${k.global}%</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">KPIs individuales</div>
+      ${kpiRows.map(r=>`<div class="kpi-row"><span class="kpi-row-label">${r.label}</span><div class="bar-bg-sm"><div class="bar-fill-sm" style="width:${r.val}%;background:${barColor(r.val)}"></div></div><span class="kpi-row-pct" style="color:${barColor(r.val)}">${r.val}%</span></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">Reincidencias</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+        <span style="font-size:13px">Tasa de reincidencia</span>
+        <span class="badge ${k.reincid>20?'br':k.reincid>0?'ba':'bg'}">${k.reincid}%</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Últimas 5 visitas</div>
+      ${historial||'<div class="empty">Sin visitas registradas</div>'}
+    </div>`;
+  showTab('inspector',null);
 }
 function renderRanking(){
   const ranked=INSPECTORES.map((insp,i)=>({name:insp,color:COLORS[i],k:calcKPI(insp)})).filter(x=>x.k).sort((a,b)=>b.k.global-a.k.global);
   const list=document.getElementById('ranking-list');
   if(!ranked.length){list.innerHTML='<div class="empty">Sin datos</div>';return;}
-  list.innerHTML=ranked.map((r,i)=>`<div class="irow"><span class="rank-num">${i+1}</span><div class="av" style="background:${r.color}18;color:${r.color}">${initials(r.name)}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">${r.name}</span><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></div><div style="font-size:11px;color:#6D6D72;margin-top:2px">Proto ${r.k.pro}% · Bitác ${r.k.bit}% · ${r.k.total} visitas</div></div></div>`).join('');
+  list.innerHTML=ranked.map((r,i)=>`<div class="irow" onclick="showInspector('${r.name}')"><span class="rank-num">${i+1}</span><div class="av" style="background:${r.color}18;color:${r.color}">${initials(r.name)}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">${r.name}</span><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></div><div style="font-size:11px;color:#6D6D72;margin-top:2px">Proto ${r.k.pro}% · Bitác ${r.k.bit}% · ${r.k.total} visitas</div></div><span class="chevron">›</span></div>`).join('');
   document.getElementById('kpi-tbody').innerHTML=ranked.map(r=>`<tr><td>${r.name.split(' ')[0]}</td><td><span class="badge ${badgeCls(r.k.bit)}">${r.k.bit}%</span></td><td><span class="badge ${badgeCls(r.k.pro)}">${r.k.pro}%</span></td><td><span class="badge ${badgeCls(r.k.ubi)}">${r.k.ubi}%</span></td><td><span class="badge ${badgeCls(r.k.fot)}">${r.k.fot}%</span></td><td><span class="badge ${badgeCls(r.k.inf)}">${r.k.inf}%</span></td><td><span class="badge ${badgeCls(r.k.hor)}">${r.k.hor}%</span></td><td><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></td></tr>`).join('');
 }
 function renderAlertas(){
   const alertas=[];
-  INSPECTORES.forEach(insp=>{const k=calcKPI(insp);if(!k)return;[{label:'Protocolo',val:k.pro},{label:'Bitácora',val:k.bit},{label:'Informes',val:k.inf},{label:'Ubicación',val:k.ubi},{label:'Fotos',val:k.fot},{label:'Horario',val:k.hor}].forEach(c=>{if(c.val<85)alertas.push({tipo:'r',text:`${insp}: ${c.label.toLowerCase()} crítico`,sub:`${c.val}% — mínimo 85%`});else if(c.val<95)alertas.push({tipo:'a',text:`${insp}: ${c.label.toLowerCase()} en observación`,sub:`${c.val}% — óptimo 95%`});});if(k.reincid>20)alertas.push({tipo:'r',text:`${insp}: alta tasa de reincidencias`,sub:`${k.reincid}%`});});
+  INSPECTORES.forEach(insp=>{const k=calcKPI(insp);if(!k)return;[{label:'Protocolo',val:k.pro},{label:'Bitácora',val:k.bit},{label:'Informes',val:k.inf},{label:'Ubicación',val:k.ubi},{label:'Fotos',val:k.fot},{label:'Horario',val:k.hor}].forEach(c=>{if(c.val<85)alertas.push({tipo:'r',text:`${insp}: ${c.label.toLowerCase()} crítico`,sub:`${c.val}% — mínimo 85%`,insp});else if(c.val<95)alertas.push({tipo:'a',text:`${insp}: ${c.label.toLowerCase()} en observación`,sub:`${c.val}% — óptimo 95%`,insp});});if(k.reincid>20)alertas.push({tipo:'r',text:`${insp}: alta tasa de reincidencias`,sub:`${k.reincid}%`,insp});});
   const list=document.getElementById('alertas-list');
   if(!alertas.length){list.innerHTML='<div class="empty">✅ Sin alertas activas.</div>';return;}
-  list.innerHTML=[...alertas.filter(a=>a.tipo==='r'),...alertas.filter(a=>a.tipo==='a')].map(a=>`<div class="alert-item"><span class="alert-dot" style="background:${a.tipo==='r'?'#FF3B30':'#FF9500'}"></span><div><div style="font-size:13px;font-weight:500">${a.text}</div><div style="font-size:11px;color:#6D6D72;margin-top:2px">${a.sub}</div></div></div>`).join('');
+  list.innerHTML=[...alertas.filter(a=>a.tipo==='r'),...alertas.filter(a=>a.tipo==='a')].map(a=>`<div class="alert-item" onclick="showInspector('${a.insp}')"><span class="alert-dot" style="background:${a.tipo==='r'?'#FF3B30':'#FF9500'}"></span><div style="flex:1"><div style="font-size:13px;font-weight:500">${a.text}</div><div style="font-size:11px;color:#6D6D72;margin-top:2px">${a.sub}</div></div><span class="chevron">›</span></div>`).join('');
 }
 function renderHistorial(){
   const filtrado=filtroActual==='Todos'?allData:allData.filter(r=>r[C.inspector]===filtroActual);
@@ -167,7 +233,17 @@ function renderHistorial(){
   }).join('');
 }
 function filtrar(f,btn){filtroActual=f;document.querySelectorAll('.tog').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderHistorial();}
-function showTab(name,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');if(btn)btn.classList.add('active');if(name==='ranking')renderRanking();else if(name==='alertas')renderAlertas();else if(name==='historial')renderHistorial();else renderDashboard();}
+function showTab(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(name!=='inspector')document.getElementById('header-title').textContent='Dashboard KPI – FAMCOVA';
+  if(name==='ranking')renderRanking();
+  else if(name==='alertas')renderAlertas();
+  else if(name==='historial')renderHistorial();
+  else if(name==='dashboard')renderDashboard();
+}
 function renderAll(){renderDashboard();renderRanking();renderAlertas();renderHistorial();}
 loadData();
 </script>
