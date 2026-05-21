@@ -46,7 +46,6 @@ input:checked+.slider:before{transform:translateX(20px)}
 .score-label{font-size:12px;color:#6D6D72;margin-top:4px}
 .score-bar{height:8px;background:#E5E5EA;border-radius:4px;margin-top:10px;overflow:hidden}
 .score-fill{height:8px;border-radius:4px;transition:width 0.4s,background 0.4s}
-.loading{text-align:center;padding:8px;font-size:12px;color:#6D6D72}
 </style>
 </head>
 <body>
@@ -122,11 +121,7 @@ input:checked+.slider:before{transform:translateX(20px)}
     <div class="card">
       <div class="field"><div class="toggle-wrap"><label>Presente en sitio de obra</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-presente" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Porta chaleco reflectivo</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-chaleco" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Presentación acorde al puesto</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-presentacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Equipo fotográfico en buen estado</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-camara" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Equipo de comunicación OK</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-comunicacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Posee medio de señalización</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-senalizacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Porta equipos de medición asignados</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-equipo-med" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Porta equipos de medición</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-equipo-med" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Equipos debidamente identificados</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-identificados" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Equipos coinciden con registro</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-registro" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Porta documentos necesarios</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-documentos" onchange="updateScore()"><span class="slider"></span></label></div></div>
@@ -137,13 +132,6 @@ input:checked+.slider:before{transform:translateX(20px)}
     <div class="section-title">Procedimiento de inspección</div>
     <div class="card">
       <div class="field"><div class="toggle-wrap"><label>Aplica procedimiento correctamente</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-procedimiento" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Conoce velocidad de diseño de ruta</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-velocidad" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Cuadrilla con rótulos suficientes</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-rotulos" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Rótulos cumplen Manual Disp. Seg.</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-rotulos-manual" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Cuadrilla con conos suficientes</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-conos" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Conos cumplen Manual Disp. Seg.</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-conos-manual" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Cuadrilla con equipo adecuado</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-equipo-cuadrilla" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Trabajadores con chaleco reflectivo</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-chaleco-cuadrilla" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Conoce y aprueba botadero</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-botadero" onchange="updateScore()"><span class="slider"></span></label></div></div>
     </div>
   </div>
@@ -154,7 +142,7 @@ input:checked+.slider:before{transform:translateX(20px)}
       <div class="field"><div class="toggle-wrap"><label>Bitácora completa</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-bitacora" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Registro fotográfico</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-foto" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Entrega informe diario</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-informe" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Reporte de ubicación enviado</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-ubicacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Reporte de ubicación</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-ubicacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
     </div>
   </div>
 
@@ -165,10 +153,7 @@ input:checked+.slider:before{transform:translateX(20px)}
       <div class="field">
         <label>Severidad</label>
         <select id="f-severidad">
-          <option>Ninguna</option>
-          <option>Baja</option>
-          <option>Media</option>
-          <option>Alta</option>
+          <option>Ninguna</option><option>Baja</option><option>Media</option><option>Alta</option>
         </select>
       </div>
       <div class="field"><div class="toggle-wrap"><label>Reincidencia</label><label class="toggle"><input type="checkbox" id="c-reincidencia"><span class="slider"></span></label></div></div>
@@ -192,80 +177,65 @@ input:checked+.slider:before{transform:translateX(20px)}
   <button class="btn-submit" id="btn-guardar" onclick="guardar()">Guardar visita</button>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzGTAhyRU1YXEc4DkIyMYe2gH5j7hHXcwlzwAg5-Ud_vuL55a59JDo8Erif3ZSQwx-OSQ/exec';
-
-let rutasData = [];
+let rutasData=[];
 
 async function cargarRutas(){
   try{
-    const res = await fetch(SCRIPT_URL+'?sheet=RUTAS&t='+Date.now());
-    const json = await res.json();
-    const rows = (json.data||[]).slice(1).filter(r=>r[0]);
-    rutasData = rows.map(r=>({ruta:String(r[0]),seccion:String(r[1]),desc:String(r[2]||'')}));
-    const rutas = [...new Set(rutasData.map(r=>r.ruta))];
-    const sel = document.getElementById('f-ruta');
-    rutas.forEach(r=>{
-      const opt = document.createElement('option');
-      opt.value = r; opt.textContent = 'Ruta '+r;
-      sel.appendChild(opt);
-    });
-  }catch(e){console.log('Error cargando rutas',e);}
+    const res=await fetch(SCRIPT_URL+'?sheet=RUTAS&t='+Date.now());
+    const json=await res.json();
+    const rows=(json.data||[]).slice(1).filter(r=>r[0]);
+    rutasData=rows.map(r=>({ruta:String(r[0]),seccion:String(r[1]),desc:String(r[2]||'')}));
+    const rutas=[...new Set(rutasData.map(r=>r.ruta))];
+    const sel=document.getElementById('f-ruta');
+    rutas.forEach(r=>{const opt=document.createElement('option');opt.value=r;opt.textContent='Ruta '+r;sel.appendChild(opt);});
+  }catch(e){console.log('Error rutas',e);}
 }
 
 function actualizarSecciones(){
-  const ruta = document.getElementById('f-ruta').value;
-  const sel = document.getElementById('f-seccion');
-  sel.innerHTML = '<option value="">Seleccionar...</option>';
+  const ruta=document.getElementById('f-ruta').value;
+  const sel=document.getElementById('f-seccion');
+  sel.innerHTML='<option value="">Seleccionar...</option>';
   document.getElementById('desc-seccion').style.display='none';
-  if(!ruta) return;
-  const secciones = rutasData.filter(r=>r.ruta===ruta);
-  secciones.forEach(s=>{
-    const opt = document.createElement('option');
-    opt.value = s.seccion;
-    opt.textContent = s.seccion;
-    opt.dataset.desc = s.desc;
+  if(!ruta)return;
+  rutasData.filter(r=>r.ruta===ruta).forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s.seccion;opt.textContent=s.seccion;opt.dataset.desc=s.desc;
     sel.appendChild(opt);
   });
 }
 
 function mostrarDescripcion(){
-  const sel = document.getElementById('f-seccion');
-  const opt = sel.options[sel.selectedIndex];
-  const desc = opt ? opt.dataset.desc : '';
-  const box = document.getElementById('desc-seccion');
-  if(desc && desc !== 'undefined'){
-    document.getElementById('desc-texto').textContent = desc;
-    box.style.display = 'block';
-  } else {
-    box.style.display = 'none';
-  }
+  const sel=document.getElementById('f-seccion');
+  const opt=sel.options[sel.selectedIndex];
+  const desc=opt?opt.dataset.desc:'';
+  const box=document.getElementById('desc-seccion');
+  if(desc&&desc!=='undefined'){document.getElementById('desc-texto').textContent=desc;box.style.display='block';}
+  else{box.style.display='none';}
 }
 
 function updateScore(){
-  const checks = document.querySelectorAll('.check-kpi');
-  const score = Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
-  document.getElementById('score-num').textContent = score+'%';
-  const fill = document.getElementById('score-fill');
-  fill.style.width = score+'%';
-  fill.style.background = score>=90?'#34C759':score>=75?'#FF9500':'#FF3B30';
+  const checks=document.querySelectorAll('.check-kpi');
+  const score=Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
+  document.getElementById('score-num').textContent=score+'%';
+  const fill=document.getElementById('score-fill');
+  fill.style.width=score+'%';
+  fill.style.background=score>=90?'#34C759':score>=75?'#FF9500':'#FF3B30';
 }
 
 function toast(msg,err=false){
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast'+(err?' error':'')+' show';
+  t.textContent=msg;t.className='toast'+(err?' error':'')+' show';
   setTimeout(()=>t.className='toast',3000);
 }
 
-function si(checked){return checked?'TRUE':'FALSE';}
+function si(v){return v?'TRUE':'FALSE';}
 
 async function guardar(){
   const fecha=document.getElementById('f-fecha').value;
   const inspector=document.getElementById('f-inspector').value;
   const ruta=document.getElementById('f-ruta').value;
-  const seccion=document.getElementById('f-seccion').value;
   if(!fecha){toast('Ingresá la fecha',true);return;}
   if(!inspector){toast('Seleccioná un inspector',true);return;}
   if(!ruta){toast('Seleccioná una ruta',true);return;}
@@ -275,49 +245,35 @@ async function guardar(){
 
   const checks=document.querySelectorAll('.check-kpi');
   const score=Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
-  const dateObj=new Date(fecha+'T12:00:00');
-  const mes=dateObj.toLocaleString('es-CR',{month:'long',year:'numeric'});
-  const descSel=document.getElementById('f-seccion').options[document.getElementById('f-seccion').selectedIndex];
-  const descripcion=descSel?descSel.dataset.desc||'':'';
+  const mes=new Date(fecha+'T12:00:00').toLocaleString('es-CR',{month:'long',year:'numeric'});
+  const secSel=document.getElementById('f-seccion');
+  const secOpt=secSel.options[secSel.selectedIndex];
+  const descripcion=secOpt?secOpt.dataset.desc||'':'';
 
   const row=[
-    fecha, mes, inspector, ruta, seccion, descripcion,
+    fecha,mes,inspector,ruta,
+    document.getElementById('f-seccion').value,
+    descripcion,
     document.getElementById('f-estacion').value,
     document.getElementById('f-referencia').value,
     document.getElementById('f-actividad').value,
     document.getElementById('f-equipo').value,
     document.getElementById('f-bitacora-num').value,
-    // Aspectos del inspector
     si(document.getElementById('c-presente').checked),
     si(document.getElementById('c-chaleco').checked),
-    si(document.getElementById('c-presentacion').checked),
-    si(document.getElementById('c-camara').checked),
-    si(document.getElementById('c-comunicacion').checked),
-    si(document.getElementById('c-senalizacion').checked),
     si(document.getElementById('c-equipo-med').checked),
     si(document.getElementById('c-identificados').checked),
     si(document.getElementById('c-registro').checked),
     si(document.getElementById('c-documentos').checked),
-    // Procedimiento
     si(document.getElementById('c-procedimiento').checked),
-    si(document.getElementById('c-velocidad').checked),
-    si(document.getElementById('c-rotulos').checked),
-    si(document.getElementById('c-rotulos-manual').checked),
-    si(document.getElementById('c-conos').checked),
-    si(document.getElementById('c-conos-manual').checked),
-    si(document.getElementById('c-equipo-cuadrilla').checked),
-    si(document.getElementById('c-chaleco-cuadrilla').checked),
     si(document.getElementById('c-botadero').checked),
-    // Registro documental
     si(document.getElementById('c-bitacora').checked),
     si(document.getElementById('c-foto').checked),
     si(document.getElementById('c-informe').checked),
     si(document.getElementById('c-ubicacion').checked),
-    // Incidencias
     si(document.getElementById('c-problema').checked),
     document.getElementById('f-severidad').value,
     si(document.getElementById('c-reincidencia').checked),
-    // Notas
     document.getElementById('f-obs').value,
     document.getElementById('f-accion').value,
     score
@@ -332,17 +288,9 @@ async function guardar(){
 }
 
 function resetForm(){
-  document.getElementById('f-inspector').value='';
-  document.getElementById('f-ruta').value='';
+  ['f-inspector','f-ruta','f-estacion','f-referencia','f-actividad','f-equipo','f-bitacora-num','f-obs','f-accion'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-seccion').innerHTML='<option value="">Seleccionar...</option>';
   document.getElementById('desc-seccion').style.display='none';
-  document.getElementById('f-estacion').value='';
-  document.getElementById('f-referencia').value='';
-  document.getElementById('f-actividad').value='';
-  document.getElementById('f-equipo').value='';
-  document.getElementById('f-bitacora-num').value='';
-  document.getElementById('f-obs').value='';
-  document.getElementById('f-accion').value='';
   document.getElementById('f-severidad').value='Ninguna';
   document.querySelectorAll('input[type="checkbox"]').forEach(c=>c.checked=false);
   updateScore();
