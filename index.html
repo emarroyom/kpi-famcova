@@ -14,18 +14,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .header{background:#1F3864;padding:16px;padding-top:max(16px,env(safe-area-inset-top));position:sticky;top:0;z-index:10}
 .header h1{color:#fff;font-size:17px;font-weight:600;text-align:center}
 .header p{color:rgba(255,255,255,0.7);font-size:12px;text-align:center;margin-top:2px}
-.content{padding:16px;padding-bottom:max(32px,env(safe-area-inset-bottom))}
+.content{padding:16px;padding-bottom:max(40px,env(safe-area-inset-bottom))}
 .section{margin-bottom:8px}
 .section-title{font-size:12px;font-weight:600;color:#6D6D72;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;padding-left:4px}
 .card{background:#fff;border-radius:12px;overflow:hidden;margin-bottom:8px}
 .field{padding:12px 16px;border-bottom:0.5px solid #E5E5EA;display:flex;align-items:center;justify-content:space-between;min-height:48px}
 .field:last-child{border-bottom:none}
 .field label{font-size:15px;color:#1C1C1E;flex:1}
-.field input[type="date"],.field select,.field input[type="text"]{border:none;outline:none;font-size:15px;color:#1C1C1E;text-align:right;background:transparent;max-width:60%;font-family:inherit}
+.field input[type="date"],.field select,.field input[type="text"]{border:none;outline:none;font-size:15px;color:#1C1C1E;text-align:right;background:transparent;max-width:55%;font-family:inherit}
 .field input[type="date"]{color:#007AFF}
 .field select{color:#007AFF;-webkit-appearance:none;padding-right:0}
-.field textarea{border:none;outline:none;font-size:15px;color:#1C1C1E;background:transparent;width:100%;resize:none;height:72px;margin-top:8px;font-family:inherit;line-height:1.5}
+.field textarea{border:none;outline:none;font-size:15px;color:#1C1C1E;background:transparent;width:100%;resize:none;height:64px;margin-top:8px;font-family:inherit;line-height:1.5}
 .field-vertical{flex-direction:column;align-items:flex-start}
+.field-desc{padding:10px 16px;background:#EBF3FB;border-bottom:0.5px solid #E5E5EA}
+.field-desc p{font-size:12px;color:#1F3864;font-weight:500;line-height:1.4}
 .toggle-wrap{display:flex;align-items:center;justify-content:space-between;width:100%}
 .toggle{position:relative;width:51px;height:31px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
@@ -33,7 +35,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .slider:before{content:"";position:absolute;width:27px;height:27px;left:2px;top:2px;background:white;border-radius:50%;transition:0.3s;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
 input:checked+.slider{background:#34C759}
 input:checked+.slider:before{transform:translateX(20px)}
-.btn-submit{width:100%;padding:16px;background:#1F3864;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit;transition:opacity 0.2s}
+.btn-submit{width:100%;padding:16px;background:#1F3864;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit}
 .btn-submit:active{opacity:0.8}
 .btn-submit:disabled{opacity:0.5}
 .toast{position:fixed;bottom:max(32px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:12px 24px;border-radius:24px;font-size:14px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:100;white-space:nowrap;max-width:90vw;text-align:center}
@@ -44,6 +46,7 @@ input:checked+.slider:before{transform:translateX(20px)}
 .score-label{font-size:12px;color:#6D6D72;margin-top:4px}
 .score-bar{height:8px;background:#E5E5EA;border-radius:4px;margin-top:10px;overflow:hidden}
 .score-fill{height:8px;border-radius:4px;transition:width 0.4s,background 0.4s}
+.loading{text-align:center;padding:8px;font-size:12px;color:#6D6D72}
 </style>
 </head>
 <body>
@@ -55,8 +58,9 @@ input:checked+.slider:before{transform:translateX(20px)}
   <div class="score-preview">
     <div class="score-num" id="score-num">0%</div>
     <div class="score-label">Cumplimiento operativo</div>
-    <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%;background:#E24B4A"></div></div>
+    <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%;background:#FF3B30"></div></div>
   </div>
+
   <div class="section">
     <div class="section-title">Datos de la visita</div>
     <div class="card">
@@ -77,29 +81,87 @@ input:checked+.slider:before{transform:translateX(20px)}
       </div>
       <div class="field">
         <label>Ruta</label>
-        <input type="text" id="f-ruta" placeholder="Ej: Ruta 3">
+        <select id="f-ruta" onchange="actualizarSecciones()">
+          <option value="">Seleccionar...</option>
+        </select>
       </div>
       <div class="field">
-        <label>Frente</label>
-        <input type="text" id="f-frente" placeholder="Ej: Km 12+890">
+        <label>Sección de control</label>
+        <select id="f-seccion" onchange="mostrarDescripcion()">
+          <option value="">Seleccionar...</option>
+        </select>
+      </div>
+      <div class="field-desc" id="desc-seccion" style="display:none">
+        <p id="desc-texto"></p>
+      </div>
+      <div class="field">
+        <label>Estación</label>
+        <input type="text" id="f-estacion" placeholder="Ej: 1+500">
+      </div>
+      <div class="field">
+        <label>Ubicación referencia</label>
+        <input type="text" id="f-referencia" placeholder="Ej: Frente al puente">
+      </div>
+      <div class="field">
+        <label>Actividad inspeccionada</label>
+        <input type="text" id="f-actividad" placeholder="Ej: Conformación cunetas">
+      </div>
+      <div class="field">
+        <label>Equipo de medición</label>
+        <input type="text" id="f-equipo" placeholder="Ej: Nivel, flexómetro">
+      </div>
+      <div class="field">
+        <label>No. Bitácora y folios</label>
+        <input type="text" id="f-bitacora-num" placeholder="Ej: B-12, F.34-35">
       </div>
     </div>
   </div>
+
   <div class="section">
-    <div class="section-title">Cumplimiento operativo</div>
+    <div class="section-title">Aspectos del inspector</div>
     <div class="card">
-      <div class="field"><div class="toggle-wrap"><label>Bitácora completa</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-bitacora" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Cumple protocolo</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-protocolo" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Reporte ubicación</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-ubicacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Registro fotográfico</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-foto" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Entrega informe diario</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-informe" onchange="updateScore()"><span class="slider"></span></label></div></div>
-      <div class="field"><div class="toggle-wrap"><label>Cumple horario</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-horario" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Presente en sitio de obra</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-presente" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Porta chaleco reflectivo</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-chaleco" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Presentación acorde al puesto</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-presentacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Equipo fotográfico en buen estado</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-camara" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Equipo de comunicación OK</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-comunicacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Posee medio de señalización</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-senalizacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Porta equipos de medición asignados</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-equipo-med" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Equipos debidamente identificados</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-identificados" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Equipos coinciden con registro</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-registro" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Porta documentos necesarios</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-documentos" onchange="updateScore()"><span class="slider"></span></label></div></div>
     </div>
   </div>
+
+  <div class="section">
+    <div class="section-title">Procedimiento de inspección</div>
+    <div class="card">
+      <div class="field"><div class="toggle-wrap"><label>Aplica procedimiento correctamente</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-procedimiento" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Conoce velocidad de diseño de ruta</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-velocidad" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Cuadrilla con rótulos suficientes</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-rotulos" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Rótulos cumplen Manual Disp. Seg.</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-rotulos-manual" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Cuadrilla con conos suficientes</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-conos" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Conos cumplen Manual Disp. Seg.</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-conos-manual" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Cuadrilla con equipo adecuado</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-equipo-cuadrilla" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Trabajadores con chaleco reflectivo</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-chaleco-cuadrilla" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Conoce y aprueba botadero</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-botadero" onchange="updateScore()"><span class="slider"></span></label></div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Registro documental</div>
+    <div class="card">
+      <div class="field"><div class="toggle-wrap"><label>Bitácora completa</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-bitacora" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Registro fotográfico</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-foto" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Entrega informe diario</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-informe" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Reporte de ubicación enviado</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-ubicacion" onchange="updateScore()"><span class="slider"></span></label></div></div>
+    </div>
+  </div>
+
   <div class="section">
     <div class="section-title">Incidencias</div>
     <div class="card">
-      <div class="field"><div class="toggle-wrap"><label>Problema técnico</label><label class="toggle"><input type="checkbox" id="c-problema"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Problema técnico detectado</label><label class="toggle"><input type="checkbox" id="c-problema"><span class="slider"></span></label></div></div>
       <div class="field">
         <label>Severidad</label>
         <select id="f-severidad">
@@ -112,6 +174,7 @@ input:checked+.slider:before{transform:translateX(20px)}
       <div class="field"><div class="toggle-wrap"><label>Reincidencia</label><label class="toggle"><input type="checkbox" id="c-reincidencia"><span class="slider"></span></label></div></div>
     </div>
   </div>
+
   <div class="section">
     <div class="section-title">Notas</div>
     <div class="card">
@@ -125,54 +188,141 @@ input:checked+.slider:before{transform:translateX(20px)}
       </div>
     </div>
   </div>
+
   <button class="btn-submit" id="btn-guardar" onclick="guardar()">Guardar visita</button>
 </div>
 <div class="toast" id="toast"></div>
+
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbw3p9-EcAjx5gHfyjCSn-_So-UusZFfz4qpuwyXLvZIc8ImRxojc6tjgfOyUfNA2EriYQ/exec';
-function updateScore(){
-  const checks=document.querySelectorAll('.check-kpi');
-  const score=Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
-  document.getElementById('score-num').textContent=score+'%';
-  const fill=document.getElementById('score-fill');
-  fill.style.width=score+'%';
-  fill.style.background=score>=95?'#34C759':score>=85?'#FF9500':'#FF3B30';
+
+let rutasData = [];
+
+async function cargarRutas(){
+  try{
+    const res = await fetch(SCRIPT_URL+'?sheet=RUTAS&t='+Date.now());
+    const json = await res.json();
+    const rows = (json.data||[]).slice(1).filter(r=>r[0]);
+    rutasData = rows.map(r=>({ruta:String(r[0]),seccion:String(r[1]),desc:String(r[2]||'')}));
+    const rutas = [...new Set(rutasData.map(r=>r.ruta))];
+    const sel = document.getElementById('f-ruta');
+    rutas.forEach(r=>{
+      const opt = document.createElement('option');
+      opt.value = r; opt.textContent = 'Ruta '+r;
+      sel.appendChild(opt);
+    });
+  }catch(e){console.log('Error cargando rutas',e);}
 }
+
+function actualizarSecciones(){
+  const ruta = document.getElementById('f-ruta').value;
+  const sel = document.getElementById('f-seccion');
+  sel.innerHTML = '<option value="">Seleccionar...</option>';
+  document.getElementById('desc-seccion').style.display='none';
+  if(!ruta) return;
+  const secciones = rutasData.filter(r=>r.ruta===ruta);
+  secciones.forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s.seccion;
+    opt.textContent = s.seccion;
+    opt.dataset.desc = s.desc;
+    sel.appendChild(opt);
+  });
+}
+
+function mostrarDescripcion(){
+  const sel = document.getElementById('f-seccion');
+  const opt = sel.options[sel.selectedIndex];
+  const desc = opt ? opt.dataset.desc : '';
+  const box = document.getElementById('desc-seccion');
+  if(desc && desc !== 'undefined'){
+    document.getElementById('desc-texto').textContent = desc;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+function updateScore(){
+  const checks = document.querySelectorAll('.check-kpi');
+  const score = Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
+  document.getElementById('score-num').textContent = score+'%';
+  const fill = document.getElementById('score-fill');
+  fill.style.width = score+'%';
+  fill.style.background = score>=90?'#34C759':score>=75?'#FF9500':'#FF3B30';
+}
+
 function toast(msg,err=false){
   const t=document.getElementById('toast');
   t.textContent=msg;
   t.className='toast'+(err?' error':'')+' show';
   setTimeout(()=>t.className='toast',3000);
 }
+
 function si(checked){return checked?'TRUE':'FALSE';}
+
 async function guardar(){
   const fecha=document.getElementById('f-fecha').value;
   const inspector=document.getElementById('f-inspector').value;
+  const ruta=document.getElementById('f-ruta').value;
+  const seccion=document.getElementById('f-seccion').value;
   if(!fecha){toast('Ingresá la fecha',true);return;}
   if(!inspector){toast('Seleccioná un inspector',true);return;}
+  if(!ruta){toast('Seleccioná una ruta',true);return;}
+
   const btn=document.getElementById('btn-guardar');
   btn.disabled=true;btn.textContent='Guardando...';
+
   const checks=document.querySelectorAll('.check-kpi');
   const score=Math.round([...checks].filter(c=>c.checked).length/checks.length*100);
   const dateObj=new Date(fecha+'T12:00:00');
   const mes=dateObj.toLocaleString('es-CR',{month:'long',year:'numeric'});
+  const descSel=document.getElementById('f-seccion').options[document.getElementById('f-seccion').selectedIndex];
+  const descripcion=descSel?descSel.dataset.desc||'':'';
+
   const row=[
-    fecha,mes,inspector,
-    document.getElementById('f-ruta').value,
-    document.getElementById('f-frente').value,
+    fecha, mes, inspector, ruta, seccion, descripcion,
+    document.getElementById('f-estacion').value,
+    document.getElementById('f-referencia').value,
+    document.getElementById('f-actividad').value,
+    document.getElementById('f-equipo').value,
+    document.getElementById('f-bitacora-num').value,
+    // Aspectos del inspector
+    si(document.getElementById('c-presente').checked),
+    si(document.getElementById('c-chaleco').checked),
+    si(document.getElementById('c-presentacion').checked),
+    si(document.getElementById('c-camara').checked),
+    si(document.getElementById('c-comunicacion').checked),
+    si(document.getElementById('c-senalizacion').checked),
+    si(document.getElementById('c-equipo-med').checked),
+    si(document.getElementById('c-identificados').checked),
+    si(document.getElementById('c-registro').checked),
+    si(document.getElementById('c-documentos').checked),
+    // Procedimiento
+    si(document.getElementById('c-procedimiento').checked),
+    si(document.getElementById('c-velocidad').checked),
+    si(document.getElementById('c-rotulos').checked),
+    si(document.getElementById('c-rotulos-manual').checked),
+    si(document.getElementById('c-conos').checked),
+    si(document.getElementById('c-conos-manual').checked),
+    si(document.getElementById('c-equipo-cuadrilla').checked),
+    si(document.getElementById('c-chaleco-cuadrilla').checked),
+    si(document.getElementById('c-botadero').checked),
+    // Registro documental
     si(document.getElementById('c-bitacora').checked),
-    si(document.getElementById('c-protocolo').checked),
-    si(document.getElementById('c-ubicacion').checked),
     si(document.getElementById('c-foto').checked),
     si(document.getElementById('c-informe').checked),
-    si(document.getElementById('c-horario').checked),
+    si(document.getElementById('c-ubicacion').checked),
+    // Incidencias
     si(document.getElementById('c-problema').checked),
     document.getElementById('f-severidad').value,
     si(document.getElementById('c-reincidencia').checked),
+    // Notas
     document.getElementById('f-obs').value,
     document.getElementById('f-accion').value,
     score
   ];
+
   try{
     await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({row}),headers:{'Content-Type':'application/json'}});
     toast('Visita guardada correctamente');
@@ -180,18 +330,27 @@ async function guardar(){
   }catch(e){toast('Error de conexión',true);}
   btn.disabled=false;btn.textContent='Guardar visita';
 }
+
 function resetForm(){
   document.getElementById('f-inspector').value='';
   document.getElementById('f-ruta').value='';
-  document.getElementById('f-frente').value='';
+  document.getElementById('f-seccion').innerHTML='<option value="">Seleccionar...</option>';
+  document.getElementById('desc-seccion').style.display='none';
+  document.getElementById('f-estacion').value='';
+  document.getElementById('f-referencia').value='';
+  document.getElementById('f-actividad').value='';
+  document.getElementById('f-equipo').value='';
+  document.getElementById('f-bitacora-num').value='';
   document.getElementById('f-obs').value='';
   document.getElementById('f-accion').value='';
   document.getElementById('f-severidad').value='Ninguna';
   document.querySelectorAll('input[type="checkbox"]').forEach(c=>c.checked=false);
   updateScore();
 }
+
 document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0];
 updateScore();
+cargarRutas();
 </script>
 </body>
 </html>
