@@ -63,10 +63,7 @@ input:checked+.slider:before{transform:translateX(20px)}
   <div class="section">
     <div class="section-title">Datos de la visita</div>
     <div class="card">
-      <div class="field">
-        <label>Fecha</label>
-        <input type="date" id="f-fecha">
-      </div>
+      <div class="field"><label>Fecha</label><input type="date" id="f-fecha"></div>
       <div class="field">
         <label>Inspector</label>
         <select id="f-inspector">
@@ -93,26 +90,11 @@ input:checked+.slider:before{transform:translateX(20px)}
       <div class="field-desc" id="desc-seccion" style="display:none">
         <p id="desc-texto"></p>
       </div>
-      <div class="field">
-        <label>Estación</label>
-        <input type="text" id="f-estacion" placeholder="Ej: 1+500">
-      </div>
-      <div class="field">
-        <label>Ubicación referencia</label>
-        <input type="text" id="f-referencia" placeholder="Ej: Frente al puente">
-      </div>
-      <div class="field">
-        <label>Actividad inspeccionada</label>
-        <input type="text" id="f-actividad" placeholder="Ej: Conformación cunetas">
-      </div>
-      <div class="field">
-        <label>Equipo de medición</label>
-        <input type="text" id="f-equipo" placeholder="Ej: Nivel, flexómetro">
-      </div>
-      <div class="field">
-        <label>No. Bitácora y folios</label>
-        <input type="text" id="f-bitacora-num" placeholder="Ej: B-12, F.34-35">
-      </div>
+      <div class="field"><label>Estación</label><input type="text" id="f-estacion" placeholder="Ej: 1+500"></div>
+      <div class="field"><label>Ubicación referencia</label><input type="text" id="f-referencia" placeholder="Ej: Frente al puente"></div>
+      <div class="field"><label>Actividad inspeccionada</label><input type="text" id="f-actividad" placeholder="Ej: Conformación cunetas"></div>
+      <div class="field"><label>Equipo de medición</label><input type="text" id="f-equipo" placeholder="Ej: Nivel, flexómetro"></div>
+      <div class="field"><label>No. Bitácora y folios</label><input type="text" id="f-bitacora-num" placeholder="Ej: B-12, F.34-35"></div>
     </div>
   </div>
 
@@ -131,7 +113,10 @@ input:checked+.slider:before{transform:translateX(20px)}
   <div class="section">
     <div class="section-title">Procedimiento de inspección</div>
     <div class="card">
-      <div class="field"><div class="toggle-wrap"><label>Aplica procedimiento correctamente</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-procedimiento" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Revisó cumplimiento dispositivos de seguridad</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-dispositivos" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Revisó cumplimiento del personal</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-personal" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Revisó cumplimiento de la maquinaria</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-maquinaria" onchange="updateScore()"><span class="slider"></span></label></div></div>
+      <div class="field"><div class="toggle-wrap"><label>Inspecciona la obra según procedimiento</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-procedimiento" onchange="updateScore()"><span class="slider"></span></label></div></div>
       <div class="field"><div class="toggle-wrap"><label>Conoce y aprueba botadero</label><label class="toggle"><input type="checkbox" class="check-kpi" id="c-botadero" onchange="updateScore()"><span class="slider"></span></label></div></div>
     </div>
   </div>
@@ -163,14 +148,8 @@ input:checked+.slider:before{transform:translateX(20px)}
   <div class="section">
     <div class="section-title">Notas</div>
     <div class="card">
-      <div class="field field-vertical">
-        <label>Observaciones</label>
-        <textarea id="f-obs" placeholder="Hallazgos del supervisor..."></textarea>
-      </div>
-      <div class="field field-vertical">
-        <label>Acción correctiva</label>
-        <textarea id="f-accion" placeholder="Acción indicada o tomada..."></textarea>
-      </div>
+      <div class="field field-vertical"><label>Observaciones</label><textarea id="f-obs" placeholder="Hallazgos del supervisor..."></textarea></div>
+      <div class="field field-vertical"><label>Acción correctiva</label><textarea id="f-accion" placeholder="Acción indicada o tomada..."></textarea></div>
     </div>
   </div>
 
@@ -212,7 +191,7 @@ function mostrarDescripcion(){
   const desc=opt?opt.dataset.desc:'';
   const box=document.getElementById('desc-seccion');
   if(desc&&desc!=='undefined'){document.getElementById('desc-texto').textContent=desc;box.style.display='block';}
-  else{box.style.display='none';}
+  else box.style.display='none';
 }
 
 function updateScore(){
@@ -252,8 +231,7 @@ async function guardar(){
 
   const row=[
     fecha,mes,inspector,ruta,
-    document.getElementById('f-seccion').value,
-    descripcion,
+    secSel.value,descripcion,
     document.getElementById('f-estacion').value,
     document.getElementById('f-referencia').value,
     document.getElementById('f-actividad').value,
@@ -265,6 +243,9 @@ async function guardar(){
     si(document.getElementById('c-identificados').checked),
     si(document.getElementById('c-registro').checked),
     si(document.getElementById('c-documentos').checked),
+    si(document.getElementById('c-dispositivos').checked),
+    si(document.getElementById('c-personal').checked),
+    si(document.getElementById('c-maquinaria').checked),
     si(document.getElementById('c-procedimiento').checked),
     si(document.getElementById('c-botadero').checked),
     si(document.getElementById('c-bitacora').checked),
