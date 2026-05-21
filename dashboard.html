@@ -66,7 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .back-btn{display:flex;align-items:center;gap:6px;font-size:14px;color:#1F3864;font-weight:600;margin-bottom:14px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
 .kpi-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #E5E5EA}
 .kpi-row:last-child{border-bottom:none}
-.kpi-row-label{font-size:13px;color:#1C1C1E;min-width:130px}
+.kpi-row-label{font-size:13px;color:#1C1C1E;min-width:140px}
 .kpi-row-pct{font-size:13px;font-weight:600;min-width:38px;text-align:right}
 .chevron{font-size:16px;color:#C7C7CC;margin-left:auto;flex-shrink:0}
 </style>
@@ -92,7 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 <div id="tab-ranking" class="tab">
   <div class="card"><div class="card-title">Ranking por índice global</div><div id="ranking-list"><div class="empty">Cargando...</div></div></div>
-  <div class="card"><div class="card-title">Detalle KPI por inspector</div><div style="overflow-x:auto"><table class="kpi-tbl"><thead><tr><th>Inspector</th><th>Bitác.</th><th>Proto.</th><th>Ubic.</th><th>Foto</th><th>Inf.</th><th>Hor.</th><th>Global</th></tr></thead><tbody id="kpi-tbody"><tr><td colspan="8" style="text-align:center;padding:20px;color:#6D6D72">Cargando...</td></tr></tbody></table></div></div>
+  <div class="card"><div class="card-title">Detalle KPI por inspector</div><div style="overflow-x:auto"><table class="kpi-tbl"><thead><tr><th>Inspector</th><th>Inspector</th><th>Proced.</th><th>Bitácora</th><th>Foto</th><th>Informe</th><th>Ubic.</th><th>Global</th></tr></thead><tbody id="kpi-tbody"></tbody></table></div></div>
 </div>
 <div id="tab-alertas" class="tab">
   <div class="card"><div class="card-title">⚠️ Alertas activas</div><div id="alertas-list"><div class="empty">Cargando...</div></div></div>
@@ -118,14 +118,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzGTAhyRU1YXEc4DkIyMYe2gH5j7hHXcwlzwAg5-Ud_vuL55a59JDo8Erif3ZSQwx-OSQ/exec';
 const INSPECTORES=['Jaime Vargas','Juan Diego','Jairo','Robnel','Madriz'];
 const COLORS=['#185FA5','#1D9E75','#BA7517','#D85A30','#534AB7'];
-const C={fecha:0,mes:1,inspector:2,ruta:3,frente:4,bitacora:5,protocolo:6,ubicacion:7,foto:8,informe:9,horario:10,problema:11,severidad:12,reincidencia:13,obs:14,accion:15,score:16};
+
+// Índices de columnas en el Sheet
+const C={
+  fecha:0,mes:1,inspector:2,ruta:3,seccion:4,desc:5,
+  estacion:6,referencia:7,actividad:8,equipo:9,bitacora_nro:10,
+  presente:11,chaleco:12,equipo_med:13,identificados:14,registro_eq:15,documentos:16,
+  procedimiento:17,botadero:18,
+  bitacora:19,foto:20,informe:21,ubicacion:22,
+  problema:23,severidad:24,reincidencia:25,obs:26,accion:27,score:28
+};
+
 let allData=[],filtroActual='Todos',radarInst=null;
+
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
 function isTrue(v){const s=String(v).toLowerCase().trim();return s==='true'||s==='sí'||s==='si'||s==='1';}
 function badgeCls(v){return v>=90?'bg':v>=75?'ba':'br';}
 function barColor(v){return v>=90?'#34C759':v>=75?'#FF9500':'#FF3B30';}
 function dotColor(v){return v>=90?'#34C759':v>=75?'#FF9500':'#FF3B30';}
 function setStatus(msg){document.getElementById('status-txt').textContent=msg;}
+
 async function loadData(){
   setStatus('Sincronizando...');
   try{
@@ -136,28 +148,67 @@ async function loadData(){
     renderAll();
   }catch(e){setStatus('Error – reintentando...');setTimeout(loadData,5000);}
 }
+
 function calcKPI(insp){
   const rows=insp?allData.filter(r=>r[C.inspector]===insp):allData;
   if(!rows.length)return null;
   const n=rows.length;
   const pct=col=>Math.round(rows.filter(r=>isTrue(r[col])).length/n*100);
-  const bit=pct(C.bitacora),pro=pct(C.protocolo),ubi=pct(C.ubicacion),fot=pct(C.foto),inf=pct(C.informe),hor=pct(C.horario);
-  return{bit,pro,ubi,fot,inf,hor,reincid:Math.round(rows.filter(r=>isTrue(r[C.reincidencia])).length/n*100),global:Math.round((bit+pro+ubi+fot+inf+hor)/6),total:n};
+  const inspector_kpi=Math.round((pct(C.presente)+pct(C.chaleco)+pct(C.equipo_med)+pct(C.identificados)+pct(C.registro_eq)+pct(C.documentos))/6);
+  const proced_kpi=Math.round((pct(C.procedimiento)+pct(C.botadero))/2);
+  const doc_kpi=Math.round((pct(C.bitacora)+pct(C.foto)+pct(C.informe)+pct(C.ubicacion))/4);
+  const reincid=Math.round(rows.filter(r=>isTrue(r[C.reincidencia])).length/n*100);
+  const global=Math.round((inspector_kpi+proced_kpi+doc_kpi)/3);
+  return{
+    inspector_kpi,proced_kpi,doc_kpi,
+    presente:pct(C.presente),chaleco:pct(C.chaleco),
+    equipo_med:pct(C.equipo_med),identificados:pct(C.identificados),
+    registro_eq:pct(C.registro_eq),documentos:pct(C.documentos),
+    procedimiento:pct(C.procedimiento),botadero:pct(C.botadero),
+    bitacora:pct(C.bitacora),foto:pct(C.foto),
+    informe:pct(C.informe),ubicacion:pct(C.ubicacion),
+    reincid,global,total:n
+  };
 }
+
 function renderDashboard(){
   const k=calcKPI(null);
   const cards=document.getElementById('kpi-cards');
-  if(!k){cards.innerHTML='<div class="metric-card" style="grid-column:span 2"><div class="empty">Sin registros aún.<br>Ingresá visitas desde la app.</div></div>';document.getElementById('insp-bars').innerHTML='<div class="empty">Sin datos</div>';return;}
-  cards.innerHTML=[{label:'Protocolo global',val:k.pro+'%',v:k.pro},{label:'Bitácoras',val:k.bit+'%',v:k.bit},{label:'Informes',val:k.inf+'%',v:k.inf},{label:'Índice global',val:k.global+'%',sub:k.total+' visitas',v:k.global}].map(i=>`<div class="metric-card"><div class="metric-label"><span class="dot" style="background:${dotColor(i.v)}"></span>${i.label}</div><div class="metric-value">${i.val}</div>${i.sub?`<div class="metric-sub">${i.sub}</div>`:''}</div>`).join('');
+  if(!k){
+    cards.innerHTML='<div class="metric-card" style="grid-column:span 2"><div class="empty">Sin registros aún.<br>Ingresá visitas desde la app.</div></div>';
+    document.getElementById('insp-bars').innerHTML='<div class="empty">Sin datos</div>';
+    return;
+  }
+  cards.innerHTML=[
+    {label:'Aspectos inspector',val:k.inspector_kpi+'%',v:k.inspector_kpi},
+    {label:'Procedimiento',val:k.proced_kpi+'%',v:k.proced_kpi},
+    {label:'Registro documental',val:k.doc_kpi+'%',v:k.doc_kpi},
+    {label:'Índice global',val:k.global+'%',sub:k.total+' visitas',v:k.global},
+  ].map(i=>`<div class="metric-card"><div class="metric-label"><span class="dot" style="background:${dotColor(i.v)}"></span>${i.label}</div><div class="metric-value">${i.val}</div>${i.sub?`<div class="metric-sub">${i.sub}</div>`:''}</div>`).join('');
+
   document.getElementById('insp-bars').innerHTML=INSPECTORES.map((insp,i)=>{
     const ki=calcKPI(insp);
     if(!ki)return `<div class="irow irow-nc"><div class="av" style="background:${COLORS[i]}18;color:${COLORS[i]}">${initials(insp)}</div><span style="flex:1;font-size:13px;font-weight:500">${insp}</span><span style="font-size:12px;color:#6D6D72">Sin datos</span></div>`;
     return `<div class="irow" onclick="showInspector('${insp}')"><div class="av" style="background:${COLORS[i]}18;color:${COLORS[i]}">${initials(insp)}</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:13px;font-weight:600">${insp}</span><span class="badge ${badgeCls(ki.global)}">${ki.global}%</span></div><div class="bar-bg"><div class="bar-fill" style="width:${ki.global}%;background:${barColor(ki.global)}"></div></div></div><span class="chevron">›</span></div>`;
   }).join('');
+
   const ctx=document.getElementById('radarChart').getContext('2d');
   if(radarInst)radarInst.destroy();
-  radarInst=new Chart(ctx,{type:'radar',data:{labels:['Protocolo','Bitácora','Ubicación','Fotos','Informes','Horario'],datasets:[{data:[k.pro,k.bit,k.ubi,k.fot,k.inf,k.hor],backgroundColor:'rgba(31,56,100,0.1)',borderColor:'#1F3864',pointBackgroundColor:'#1F3864',borderWidth:2,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9},color:'#888'},pointLabels:{font:{size:11}},grid:{color:'rgba(0,0,0,0.06)'},angleLines:{color:'rgba(0,0,0,0.06)'}}},plugins:{legend:{display:false}}}});
+  radarInst=new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['Inspector','Procedimiento','Bitácora','Fotos','Informe','Ubicación'],
+      datasets:[{data:[k.inspector_kpi,k.proced_kpi,k.bitacora,k.foto,k.informe,k.ubicacion],
+        backgroundColor:'rgba(31,56,100,0.1)',borderColor:'#1F3864',
+        pointBackgroundColor:'#1F3864',borderWidth:2,pointRadius:4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9},color:'#888'},
+        pointLabels:{font:{size:11}},grid:{color:'rgba(0,0,0,0.06)'},angleLines:{color:'rgba(0,0,0,0.06)'}}},
+      plugins:{legend:{display:false}}}
+  });
 }
+
 function showInspector(insp){
   const i=INSPECTORES.indexOf(insp);
   const color=COLORS[i];
@@ -166,20 +217,45 @@ function showInspector(insp){
   const rows=allData.filter(r=>r[C.inspector]===insp);
   document.getElementById('header-title').textContent=insp;
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+
   const kpiRows=[
-    {label:'Bitácora completa',val:k.bit},
-    {label:'Cumple protocolo',val:k.pro},
-    {label:'Reporte ubicación',val:k.ubi},
-    {label:'Registro fotográfico',val:k.fot},
-    {label:'Entrega informe',val:k.inf},
-    {label:'Cumple horario',val:k.hor},
+    {label:'Presente en sitio',val:k.presente},
+    {label:'Porta chaleco',val:k.chaleco},
+    {label:'Equipo de medición',val:k.equipo_med},
+    {label:'Equipos identificados',val:k.identificados},
+    {label:'Equipos en registro',val:k.registro_eq},
+    {label:'Porta documentos',val:k.documentos},
+    {label:'Aplica procedimiento',val:k.procedimiento},
+    {label:'Aprueba botadero',val:k.botadero},
+    {label:'Bitácora completa',val:k.bitacora},
+    {label:'Registro fotográfico',val:k.foto},
+    {label:'Entrega informe',val:k.informe},
+    {label:'Reporte ubicación',val:k.ubicacion},
   ];
+
   const historial=[...rows].reverse().slice(0,5).map(r=>{
-    const chks=[C.bitacora,C.protocolo,C.ubicacion,C.foto,C.informe,C.horario];
-    const score=Math.round(chks.filter(c=>isTrue(r[c])).length/chks.length*100);
+    const kpiCols=[C.presente,C.chaleco,C.equipo_med,C.identificados,C.registro_eq,C.documentos,C.procedimiento,C.botadero,C.bitacora,C.foto,C.informe,C.ubicacion];
+    const score=Math.round(kpiCols.filter(c=>isTrue(r[c])).length/kpiCols.length*100);
     const fecha=r[C.fecha]?String(r[C.fecha]).split('T')[0]:'—';
-    return `<div class="hist-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div><div style="font-size:12px;font-weight:600">${fecha}</div><div style="font-size:11px;color:#6D6D72">${r[C.ruta]||'Sin ruta'}</div></div><span class="badge ${badgeCls(score)}">${score}%</span></div><div style="display:flex;flex-wrap:wrap;gap:3px">${[['Bitácora',C.bitacora],['Protocolo',C.protocolo],['Fotos',C.foto],['Informe',C.informe]].map(([l,c])=>`<span class="chip ${isTrue(r[c])?'cg':'cr'}">${l}</span>`).join('')}${isTrue(r[C.reincidencia])?'<span class="chip cr">Reincidencia</span>':''}${isTrue(r[C.problema])?`<span class="chip ca">Prob. ${r[C.severidad]||''}</span>`:''}</div>${r[C.obs]?`<div style="font-size:11px;color:#6D6D72;margin-top:6px">${r[C.obs]}</div>`:''}</div>`;
+    return `<div class="hist-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div><div style="font-size:12px;font-weight:600">${fecha}</div>
+        <div style="font-size:11px;color:#6D6D72">${r[C.ruta]?'Ruta '+r[C.ruta]:''} ${r[C.seccion]?'/ Sec. '+r[C.seccion]:''}</div>
+        ${r[C.actividad]?`<div style="font-size:11px;color:#6D6D72">${r[C.actividad]}</div>`:''}
+        </div><span class="badge ${badgeCls(score)}">${score}%</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        <span class="chip ${isTrue(r[C.presente])?'cg':'cr'}">Presente</span>
+        <span class="chip ${isTrue(r[C.procedimiento])?'cg':'cr'}">Proced.</span>
+        <span class="chip ${isTrue(r[C.bitacora])?'cg':'cr'}">Bitácora</span>
+        <span class="chip ${isTrue(r[C.foto])?'cg':'cr'}">Fotos</span>
+        ${isTrue(r[C.reincidencia])?'<span class="chip cr">Reincidencia</span>':''}
+        ${isTrue(r[C.problema])?`<span class="chip ca">Prob. ${r[C.severidad]||''}</span>`:''}
+      </div>
+      ${r[C.obs]?`<div style="font-size:11px;color:#6D6D72;margin-top:6px">${r[C.obs]}</div>`:''}
+    </div>`;
   }).join('');
+
   document.getElementById('inspector-detail').innerHTML=`
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
       <div class="av av-lg" style="background:${color}18;color:${color}">${initials(insp)}</div>
@@ -202,37 +278,68 @@ function showInspector(insp){
     </div>
     <div class="card">
       <div class="card-title">Últimas 5 visitas</div>
-      ${historial||'<div class="empty">Sin visitas registradas</div>'}
+      ${historial||'<div class="empty">Sin visitas</div>'}
     </div>`;
+
   showTab('inspector',null);
 }
+
 function renderRanking(){
   const ranked=INSPECTORES.map((insp,i)=>({name:insp,color:COLORS[i],k:calcKPI(insp)})).filter(x=>x.k).sort((a,b)=>b.k.global-a.k.global);
   const list=document.getElementById('ranking-list');
   if(!ranked.length){list.innerHTML='<div class="empty">Sin datos</div>';return;}
-  list.innerHTML=ranked.map((r,i)=>`<div class="irow" onclick="showInspector('${r.name}')"><span class="rank-num">${i+1}</span><div class="av" style="background:${r.color}18;color:${r.color}">${initials(r.name)}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">${r.name}</span><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></div><div style="font-size:11px;color:#6D6D72;margin-top:2px">Proto ${r.k.pro}% · Bitác ${r.k.bit}% · ${r.k.total} visitas</div></div><span class="chevron">›</span></div>`).join('');
-  document.getElementById('kpi-tbody').innerHTML=ranked.map(r=>`<tr><td>${r.name.split(' ')[0]}</td><td><span class="badge ${badgeCls(r.k.bit)}">${r.k.bit}%</span></td><td><span class="badge ${badgeCls(r.k.pro)}">${r.k.pro}%</span></td><td><span class="badge ${badgeCls(r.k.ubi)}">${r.k.ubi}%</span></td><td><span class="badge ${badgeCls(r.k.fot)}">${r.k.fot}%</span></td><td><span class="badge ${badgeCls(r.k.inf)}">${r.k.inf}%</span></td><td><span class="badge ${badgeCls(r.k.hor)}">${r.k.hor}%</span></td><td><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></td></tr>`).join('');
+  list.innerHTML=ranked.map((r,i)=>`<div class="irow" onclick="showInspector('${r.name}')"><span class="rank-num">${i+1}</span><div class="av" style="background:${r.color}18;color:${r.color}">${initials(r.name)}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">${r.name}</span><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></div><div style="font-size:11px;color:#6D6D72;margin-top:2px">Inspector ${r.k.inspector_kpi}% · Proced. ${r.k.proced_kpi}% · Doc. ${r.k.doc_kpi}%</div></div><span class="chevron">›</span></div>`).join('');
+  document.getElementById('kpi-tbody').innerHTML=ranked.map(r=>`<tr><td>${r.name.split(' ')[0]}</td><td><span class="badge ${badgeCls(r.k.inspector_kpi)}">${r.k.inspector_kpi}%</span></td><td><span class="badge ${badgeCls(r.k.proced_kpi)}">${r.k.proced_kpi}%</span></td><td><span class="badge ${badgeCls(r.k.bitacora)}">${r.k.bitacora}%</span></td><td><span class="badge ${badgeCls(r.k.foto)}">${r.k.foto}%</span></td><td><span class="badge ${badgeCls(r.k.informe)}">${r.k.informe}%</span></td><td><span class="badge ${badgeCls(r.k.ubicacion)}">${r.k.ubicacion}%</span></td><td><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></td></tr>`).join('');
 }
+
 function renderAlertas(){
   const alertas=[];
-  INSPECTORES.forEach(insp=>{const k=calcKPI(insp);if(!k)return;[{label:'Protocolo',val:k.pro},{label:'Bitácora',val:k.bit},{label:'Informes',val:k.inf},{label:'Ubicación',val:k.ubi},{label:'Fotos',val:k.fot},{label:'Horario',val:k.hor}].forEach(c=>{if(c.val<85)alertas.push({tipo:'r',text:`${insp}: ${c.label.toLowerCase()} crítico`,sub:`${c.val}% — mínimo 85%`,insp});else if(c.val<95)alertas.push({tipo:'a',text:`${insp}: ${c.label.toLowerCase()} en observación`,sub:`${c.val}% — óptimo 95%`,insp});});if(k.reincid>20)alertas.push({tipo:'r',text:`${insp}: alta tasa de reincidencias`,sub:`${k.reincid}%`,insp});});
+  INSPECTORES.forEach(insp=>{
+    const k=calcKPI(insp);if(!k)return;
+    [{label:'Aspectos inspector',val:k.inspector_kpi},{label:'Procedimiento',val:k.proced_kpi},{label:'Registro documental',val:k.doc_kpi}].forEach(c=>{
+      if(c.val<75)alertas.push({tipo:'r',text:`${insp}: ${c.label} crítico`,sub:`${c.val}% — mínimo 75%`,insp});
+      else if(c.val<90)alertas.push({tipo:'a',text:`${insp}: ${c.label} en observación`,sub:`${c.val}% — óptimo 90%`,insp});
+    });
+    if(k.reincid>20)alertas.push({tipo:'r',text:`${insp}: alta tasa de reincidencias`,sub:`${k.reincid}%`,insp});
+  });
   const list=document.getElementById('alertas-list');
   if(!alertas.length){list.innerHTML='<div class="empty">✅ Sin alertas activas.</div>';return;}
   list.innerHTML=[...alertas.filter(a=>a.tipo==='r'),...alertas.filter(a=>a.tipo==='a')].map(a=>`<div class="alert-item" onclick="showInspector('${a.insp}')"><span class="alert-dot" style="background:${a.tipo==='r'?'#FF3B30':'#FF9500'}"></span><div style="flex:1"><div style="font-size:13px;font-weight:500">${a.text}</div><div style="font-size:11px;color:#6D6D72;margin-top:2px">${a.sub}</div></div><span class="chevron">›</span></div>`).join('');
 }
+
 function renderHistorial(){
   const filtrado=filtroActual==='Todos'?allData:allData.filter(r=>r[C.inspector]===filtroActual);
   document.getElementById('hist-count').textContent=filtrado.length+' registros';
   const list=document.getElementById('historial-list');
   if(!filtrado.length){list.innerHTML='<div class="empty">Sin registros</div>';return;}
   list.innerHTML=[...filtrado].reverse().map(r=>{
-    const chks=[C.bitacora,C.protocolo,C.ubicacion,C.foto,C.informe,C.horario];
-    const score=Math.round(chks.filter(c=>isTrue(r[c])).length/chks.length*100);
+    const kpiCols=[C.presente,C.chaleco,C.equipo_med,C.identificados,C.registro_eq,C.documentos,C.procedimiento,C.botadero,C.bitacora,C.foto,C.informe,C.ubicacion];
+    const score=Math.round(kpiCols.filter(c=>isTrue(r[c])).length/kpiCols.length*100);
     const fecha=r[C.fecha]?String(r[C.fecha]).split('T')[0]:'—';
-    return `<div class="hist-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-size:13px;font-weight:600">${r[C.inspector]}</div><div style="font-size:11px;color:#6D6D72">${fecha} · ${r[C.ruta]||'Sin ruta'}</div></div><span class="badge ${badgeCls(score)}">${score}%</span></div><div style="display:flex;flex-wrap:wrap;gap:4px">${[['Bitácora',C.bitacora],['Protocolo',C.protocolo],['Fotos',C.foto],['Informe',C.informe]].map(([l,c])=>`<span class="chip ${isTrue(r[c])?'cg':'cr'}">${l}</span>`).join('')}${isTrue(r[C.reincidencia])?'<span class="chip cr">Reincidencia</span>':''}${isTrue(r[C.problema])?`<span class="chip ca">Prob. ${r[C.severidad]||''}</span>`:''}</div>${r[C.obs]?`<div style="font-size:11px;color:#6D6D72;margin-top:8px;padding-top:8px;border-top:0.5px solid #E5E5EA">${r[C.obs]}</div>`:''}</div>`;
+    return `<div class="hist-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:600">${r[C.inspector]}</div>
+          <div style="font-size:11px;color:#6D6D72">${fecha} · ${r[C.ruta]?'Ruta '+r[C.ruta]:''} ${r[C.seccion]?'Sec. '+r[C.seccion]:''}</div>
+          ${r[C.actividad]?`<div style="font-size:11px;color:#6D6D72">${r[C.actividad]}</div>`:''}
+        </div>
+        <span class="badge ${badgeCls(score)}">${score}%</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        <span class="chip ${isTrue(r[C.presente])?'cg':'cr'}">Presente</span>
+        <span class="chip ${isTrue(r[C.procedimiento])?'cg':'cr'}">Proced.</span>
+        <span class="chip ${isTrue(r[C.bitacora])?'cg':'cr'}">Bitácora</span>
+        <span class="chip ${isTrue(r[C.foto])?'cg':'cr'}">Fotos</span>
+        ${isTrue(r[C.reincidencia])?'<span class="chip cr">Reincidencia</span>':''}
+        ${isTrue(r[C.problema])?`<span class="chip ca">Prob. ${r[C.severidad]||''}</span>`:''}
+      </div>
+      ${r[C.obs]?`<div style="font-size:11px;color:#6D6D72;margin-top:8px;padding-top:8px;border-top:0.5px solid #E5E5EA">${r[C.obs]}</div>`:''}
+    </div>`;
   }).join('');
 }
+
 function filtrar(f,btn){filtroActual=f;document.querySelectorAll('.tog').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderHistorial();}
+
 function showTab(name,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
@@ -244,6 +351,7 @@ function showTab(name,btn){
   else if(name==='historial')renderHistorial();
   else if(name==='dashboard')renderDashboard();
 }
+
 function renderAll(){renderDashboard();renderRanking();renderAlertas();renderHistorial();}
 loadData();
 </script>
