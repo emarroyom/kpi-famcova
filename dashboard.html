@@ -66,7 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .back-btn{display:flex;align-items:center;gap:6px;font-size:14px;color:#1F3864;font-weight:600;margin-bottom:14px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
 .kpi-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #E5E5EA}
 .kpi-row:last-child{border-bottom:none}
-.kpi-row-label{font-size:13px;color:#1C1C1E;min-width:140px}
+.kpi-row-label{font-size:13px;color:#1C1C1E;min-width:150px}
 .kpi-row-pct{font-size:13px;font-weight:600;min-width:38px;text-align:right}
 .chevron{font-size:16px;color:#C7C7CC;margin-left:auto;flex-shrink:0}
 </style>
@@ -92,7 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 <div id="tab-ranking" class="tab">
   <div class="card"><div class="card-title">Ranking por índice global</div><div id="ranking-list"><div class="empty">Cargando...</div></div></div>
-  <div class="card"><div class="card-title">Detalle KPI por inspector</div><div style="overflow-x:auto"><table class="kpi-tbl"><thead><tr><th>Inspector</th><th>Inspector</th><th>Proced.</th><th>Bitácora</th><th>Foto</th><th>Informe</th><th>Ubic.</th><th>Global</th></tr></thead><tbody id="kpi-tbody"></tbody></table></div></div>
+  <div class="card"><div class="card-title">Detalle KPI por inspector</div><div style="overflow-x:auto"><table class="kpi-tbl"><thead><tr><th>Inspector</th><th>Insp.</th><th>Proced.</th><th>Doc.</th><th>Global</th></tr></thead><tbody id="kpi-tbody"></tbody></table></div></div>
 </div>
 <div id="tab-alertas" class="tab">
   <div class="card"><div class="card-title">⚠️ Alertas activas</div><div id="alertas-list"><div class="empty">Cargando...</div></div></div>
@@ -118,17 +118,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzGTAhyRU1YXEc4DkIyMYe2gH5j7hHXcwlzwAg5-Ud_vuL55a59JDo8Erif3ZSQwx-OSQ/exec';
 const INSPECTORES=['Jaime Vargas','Juan Diego','Jairo','Robnel','Madriz'];
 const COLORS=['#185FA5','#1D9E75','#BA7517','#D85A30','#534AB7'];
-
-// Índices de columnas en el Sheet
 const C={
   fecha:0,mes:1,inspector:2,ruta:3,seccion:4,desc:5,
   estacion:6,referencia:7,actividad:8,equipo:9,bitacora_nro:10,
   presente:11,chaleco:12,equipo_med:13,identificados:14,registro_eq:15,documentos:16,
-  procedimiento:17,botadero:18,
-  bitacora:19,foto:20,informe:21,ubicacion:22,
-  problema:23,severidad:24,reincidencia:25,obs:26,accion:27,score:28
+  dispositivos:17,personal:18,maquinaria:19,procedimiento:20,botadero:21,
+  bitacora:22,foto:23,informe:24,ubicacion:25,
+  problema:26,severidad:27,reincidencia:28,obs:29,accion:30,score:31
 };
-
 let allData=[],filtroActual='Todos',radarInst=null;
 
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
@@ -155,7 +152,7 @@ function calcKPI(insp){
   const n=rows.length;
   const pct=col=>Math.round(rows.filter(r=>isTrue(r[col])).length/n*100);
   const inspector_kpi=Math.round((pct(C.presente)+pct(C.chaleco)+pct(C.equipo_med)+pct(C.identificados)+pct(C.registro_eq)+pct(C.documentos))/6);
-  const proced_kpi=Math.round((pct(C.procedimiento)+pct(C.botadero))/2);
+  const proced_kpi=Math.round((pct(C.dispositivos)+pct(C.personal)+pct(C.maquinaria)+pct(C.procedimiento)+pct(C.botadero))/5);
   const doc_kpi=Math.round((pct(C.bitacora)+pct(C.foto)+pct(C.informe)+pct(C.ubicacion))/4);
   const reincid=Math.round(rows.filter(r=>isTrue(r[C.reincidencia])).length/n*100);
   const global=Math.round((inspector_kpi+proced_kpi+doc_kpi)/3);
@@ -164,9 +161,10 @@ function calcKPI(insp){
     presente:pct(C.presente),chaleco:pct(C.chaleco),
     equipo_med:pct(C.equipo_med),identificados:pct(C.identificados),
     registro_eq:pct(C.registro_eq),documentos:pct(C.documentos),
-    procedimiento:pct(C.procedimiento),botadero:pct(C.botadero),
-    bitacora:pct(C.bitacora),foto:pct(C.foto),
-    informe:pct(C.informe),ubicacion:pct(C.ubicacion),
+    dispositivos:pct(C.dispositivos),personal:pct(C.personal),
+    maquinaria:pct(C.maquinaria),procedimiento:pct(C.procedimiento),
+    botadero:pct(C.botadero),bitacora:pct(C.bitacora),
+    foto:pct(C.foto),informe:pct(C.informe),ubicacion:pct(C.ubicacion),
     reincid,global,total:n
   };
 }
@@ -225,7 +223,10 @@ function showInspector(insp){
     {label:'Equipos identificados',val:k.identificados},
     {label:'Equipos en registro',val:k.registro_eq},
     {label:'Porta documentos',val:k.documentos},
-    {label:'Aplica procedimiento',val:k.procedimiento},
+    {label:'Dispositivos seguridad',val:k.dispositivos},
+    {label:'Cumpl. personal',val:k.personal},
+    {label:'Cumpl. maquinaria',val:k.maquinaria},
+    {label:'Inspecciona según proced.',val:k.procedimiento},
     {label:'Aprueba botadero',val:k.botadero},
     {label:'Bitácora completa',val:k.bitacora},
     {label:'Registro fotográfico',val:k.foto},
@@ -233,16 +234,19 @@ function showInspector(insp){
     {label:'Reporte ubicación',val:k.ubicacion},
   ];
 
+  const kpiCols=[C.presente,C.chaleco,C.equipo_med,C.identificados,C.registro_eq,C.documentos,C.dispositivos,C.personal,C.maquinaria,C.procedimiento,C.botadero,C.bitacora,C.foto,C.informe,C.ubicacion];
+
   const historial=[...rows].reverse().slice(0,5).map(r=>{
-    const kpiCols=[C.presente,C.chaleco,C.equipo_med,C.identificados,C.registro_eq,C.documentos,C.procedimiento,C.botadero,C.bitacora,C.foto,C.informe,C.ubicacion];
     const score=Math.round(kpiCols.filter(c=>isTrue(r[c])).length/kpiCols.length*100);
     const fecha=r[C.fecha]?String(r[C.fecha]).split('T')[0]:'—';
     return `<div class="hist-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div><div style="font-size:12px;font-weight:600">${fecha}</div>
-        <div style="font-size:11px;color:#6D6D72">${r[C.ruta]?'Ruta '+r[C.ruta]:''} ${r[C.seccion]?'/ Sec. '+r[C.seccion]:''}</div>
-        ${r[C.actividad]?`<div style="font-size:11px;color:#6D6D72">${r[C.actividad]}</div>`:''}
-        </div><span class="badge ${badgeCls(score)}">${score}%</span>
+        <div>
+          <div style="font-size:12px;font-weight:600">${fecha}</div>
+          <div style="font-size:11px;color:#6D6D72">${r[C.ruta]?'Ruta '+r[C.ruta]:''} ${r[C.seccion]?'/ Sec. '+r[C.seccion]:''}</div>
+          ${r[C.actividad]?`<div style="font-size:11px;color:#6D6D72">${r[C.actividad]}</div>`:''}
+        </div>
+        <span class="badge ${badgeCls(score)}">${score}%</span>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:3px">
         <span class="chip ${isTrue(r[C.presente])?'cg':'cr'}">Presente</span>
@@ -266,8 +270,16 @@ function showInspector(insp){
       </div>
     </div>
     <div class="card">
-      <div class="card-title">KPIs individuales</div>
-      ${kpiRows.map(r=>`<div class="kpi-row"><span class="kpi-row-label">${r.label}</span><div class="bar-bg-sm"><div class="bar-fill-sm" style="width:${r.val}%;background:${barColor(r.val)}"></div></div><span class="kpi-row-pct" style="color:${barColor(r.val)}">${r.val}%</span></div>`).join('')}
+      <div class="card-title">Aspectos del inspector</div>
+      ${kpiRows.slice(0,6).map(r=>`<div class="kpi-row"><span class="kpi-row-label">${r.label}</span><div class="bar-bg-sm"><div class="bar-fill-sm" style="width:${r.val}%;background:${barColor(r.val)}"></div></div><span class="kpi-row-pct" style="color:${barColor(r.val)}">${r.val}%</span></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">Procedimiento de inspección</div>
+      ${kpiRows.slice(6,11).map(r=>`<div class="kpi-row"><span class="kpi-row-label">${r.label}</span><div class="bar-bg-sm"><div class="bar-fill-sm" style="width:${r.val}%;background:${barColor(r.val)}"></div></div><span class="kpi-row-pct" style="color:${barColor(r.val)}">${r.val}%</span></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">Registro documental</div>
+      ${kpiRows.slice(11).map(r=>`<div class="kpi-row"><span class="kpi-row-label">${r.label}</span><div class="bar-bg-sm"><div class="bar-fill-sm" style="width:${r.val}%;background:${barColor(r.val)}"></div></div><span class="kpi-row-pct" style="color:${barColor(r.val)}">${r.val}%</span></div>`).join('')}
     </div>
     <div class="card">
       <div class="card-title">Reincidencias</div>
@@ -289,7 +301,7 @@ function renderRanking(){
   const list=document.getElementById('ranking-list');
   if(!ranked.length){list.innerHTML='<div class="empty">Sin datos</div>';return;}
   list.innerHTML=ranked.map((r,i)=>`<div class="irow" onclick="showInspector('${r.name}')"><span class="rank-num">${i+1}</span><div class="av" style="background:${r.color}18;color:${r.color}">${initials(r.name)}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">${r.name}</span><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></div><div style="font-size:11px;color:#6D6D72;margin-top:2px">Inspector ${r.k.inspector_kpi}% · Proced. ${r.k.proced_kpi}% · Doc. ${r.k.doc_kpi}%</div></div><span class="chevron">›</span></div>`).join('');
-  document.getElementById('kpi-tbody').innerHTML=ranked.map(r=>`<tr><td>${r.name.split(' ')[0]}</td><td><span class="badge ${badgeCls(r.k.inspector_kpi)}">${r.k.inspector_kpi}%</span></td><td><span class="badge ${badgeCls(r.k.proced_kpi)}">${r.k.proced_kpi}%</span></td><td><span class="badge ${badgeCls(r.k.bitacora)}">${r.k.bitacora}%</span></td><td><span class="badge ${badgeCls(r.k.foto)}">${r.k.foto}%</span></td><td><span class="badge ${badgeCls(r.k.informe)}">${r.k.informe}%</span></td><td><span class="badge ${badgeCls(r.k.ubicacion)}">${r.k.ubicacion}%</span></td><td><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></td></tr>`).join('');
+  document.getElementById('kpi-tbody').innerHTML=ranked.map(r=>`<tr><td>${r.name.split(' ')[0]}</td><td><span class="badge ${badgeCls(r.k.inspector_kpi)}">${r.k.inspector_kpi}%</span></td><td><span class="badge ${badgeCls(r.k.proced_kpi)}">${r.k.proced_kpi}%</span></td><td><span class="badge ${badgeCls(r.k.doc_kpi)}">${r.k.doc_kpi}%</span></td><td><span class="badge ${badgeCls(r.k.global)}">${r.k.global}%</span></td></tr>`).join('');
 }
 
 function renderAlertas(){
@@ -312,8 +324,8 @@ function renderHistorial(){
   document.getElementById('hist-count').textContent=filtrado.length+' registros';
   const list=document.getElementById('historial-list');
   if(!filtrado.length){list.innerHTML='<div class="empty">Sin registros</div>';return;}
+  const kpiCols=[C.presente,C.chaleco,C.equipo_med,C.identificados,C.registro_eq,C.documentos,C.dispositivos,C.personal,C.maquinaria,C.procedimiento,C.botadero,C.bitacora,C.foto,C.informe,C.ubicacion];
   list.innerHTML=[...filtrado].reverse().map(r=>{
-    const kpiCols=[C.presente,C.chaleco,C.equipo_med,C.identificados,C.registro_eq,C.documentos,C.procedimiento,C.botadero,C.bitacora,C.foto,C.informe,C.ubicacion];
     const score=Math.round(kpiCols.filter(c=>isTrue(r[c])).length/kpiCols.length*100);
     const fecha=r[C.fecha]?String(r[C.fecha]).split('T')[0]:'—';
     return `<div class="hist-card">
@@ -327,6 +339,7 @@ function renderHistorial(){
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:4px">
         <span class="chip ${isTrue(r[C.presente])?'cg':'cr'}">Presente</span>
+        <span class="chip ${isTrue(r[C.dispositivos])?'cg':'cr'}">Dispositivos</span>
         <span class="chip ${isTrue(r[C.procedimiento])?'cg':'cr'}">Proced.</span>
         <span class="chip ${isTrue(r[C.bitacora])?'cg':'cr'}">Bitácora</span>
         <span class="chip ${isTrue(r[C.foto])?'cg':'cr'}">Fotos</span>
